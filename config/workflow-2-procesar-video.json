@@ -1,0 +1,105 @@
+{
+  "name": "RainTube - 2. Procesar Video + Audio",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-manual-2",
+      "name": "Trigger Manual",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Este nodo recibe los datos del workflow anterior\n// O puedes pasar los datos manualmente con el nodo Set\n// Configurar las rutas del material descargado\nconst data = $input.first().json;\nreturn [{ json: data }];"
+      },
+      "id": "recibir-datos",
+      "name": "Recibir Datos Material",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst fs = require('fs');\nconst path = require('path');\n\nconst carpetaVideos = data.carpeta_videos;\nconst timestamp = data.timestamp;\nconst processingDir = `E:\\\\RainTube\\\\processing\\\\${timestamp}`;\n\nif (!fs.existsSync(processingDir)) {\n  fs.mkdirSync(processingDir, { recursive: true });\n}\n\n// Crear archivo de lista para FFmpeg concat\nconst archivosVideo = data.archivos_video.map(a => a.path);\nconst listContent = archivosVideo.map(f => `file '${f.replace(/\\\\/g, '/')}'`).join('\\n');\nconst listPath = path.join(processingDir, 'videos_list.txt');\nfs.writeFileSync(listPath, listContent);\n\nreturn [{ json: {\n  ...data,\n  processing_dir: processingDir,\n  list_path: listPath,\n  archivos_video_count: archivosVideo.length\n} }];"
+      },
+      "id": "preparar-concat",
+      "name": "Preparar Lista Concatenacion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "command": "={{ (() => {\nconst ffmpeg = 'C:\\\\Users\\\\Jowy\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Packages\\\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\\\ffmpeg-8.0.1-full_build\\\\bin\\\\ffmpeg.exe';\nconst listPath = $json.list_path.replace(/\\\\/g, '/');\nconst outputPath = ($json.processing_dir + '\\\\clips_concatenados.mp4').replace(/\\\\/g, '/');\nreturn `\"${ffmpeg}\" -y -f concat -safe 0 -i \"${listPath}\" -vf \"scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,setsar=1\" -c:v libx264 -preset medium -crf 20 -an -r 30 \"${outputPath}\"`;\n})() }}"
+      },
+      "id": "ffmpeg-concat",
+      "name": "FFmpeg - Concatenar Clips",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [750, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Preparar Lista Concatenacion').first().json;\nconst duracionHoras = data.tema.duracion_horas || 4;\nconst duracionSegundos = duracionHoras * 3600;\n\nreturn [{ json: {\n  ...data,\n  duracion_horas: duracionHoras,\n  duracion_segundos: duracionSegundos,\n  clips_concatenados: data.processing_dir + '\\\\clips_concatenados.mp4'\n} }];"
+      },
+      "id": "calcular-duracion",
+      "name": "Calcular Duracion Loop",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 200]
+    },
+    {
+      "parameters": {
+        "command": "={{ (() => {\nconst ffmpeg = 'C:\\\\Users\\\\Jowy\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Packages\\\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\\\ffmpeg-8.0.1-full_build\\\\bin\\\\ffmpeg.exe';\nconst input = ($json.clips_concatenados).replace(/\\\\/g, '/');\nconst output = ($json.processing_dir + '\\\\video_loop.mp4').replace(/\\\\/g, '/');\nconst duracion = $json.duracion_segundos;\nreturn `\"${ffmpeg}\" -y -stream_loop -1 -i \"${input}\" -t ${duracion} -vf \"fade=t=in:st=0:d=3,fade=t=out:st=${duracion-5}:d=5\" -c:v libx264 -preset medium -crf 20 -an -r 30 \"${output}\"`;\n})() }}"
+      },
+      "id": "ffmpeg-loop-video",
+      "name": "FFmpeg - Loop Video",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1250, 200]
+    },
+    {
+      "parameters": {
+        "command": "={{ (() => {\nconst ffmpeg = 'C:\\\\Users\\\\Jowy\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Packages\\\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\\\ffmpeg-8.0.1-full_build\\\\bin\\\\ffmpeg.exe';\nconst audioFiles = $('Preparar Lista Concatenacion').first().json.archivos_audio;\nconst audioInput = audioFiles[0].path.replace(/\\\\/g, '/');\nconst output = ($('Preparar Lista Concatenacion').first().json.processing_dir + '\\\\audio_loop.mp3').replace(/\\\\/g, '/');\nconst duracion = $json.duracion_segundos;\nreturn `\"${ffmpeg}\" -y -stream_loop -1 -i \"${audioInput}\" -t ${duracion} -af \"afade=t=in:st=0:d=5,afade=t=out:st=${duracion-10}:d=10,loudnorm\" -c:a aac -b:a 320k \"${output}\"`;\n})() }}"
+      },
+      "id": "ffmpeg-loop-audio",
+      "name": "FFmpeg - Loop Audio",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "command": "={{ (() => {\nconst ffmpeg = 'C:\\\\Users\\\\Jowy\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Packages\\\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\\\ffmpeg-8.0.1-full_build\\\\bin\\\\ffmpeg.exe';\nconst processingDir = $('Calcular Duracion Loop').first().json.processing_dir.replace(/\\\\/g, '/');\nconst video = processingDir + '/video_loop.mp4';\nconst audio = processingDir + '/audio_loop.mp3';\nconst timestamp = $('Calcular Duracion Loop').first().json.timestamp;\nconst output = `E:/RainTube/output/${timestamp}_final.mp4`;\nreturn `\"${ffmpeg}\" -y -i \"${video}\" -i \"${audio}\" -c:v libx264 -preset slow -crf 18 -b:v 10M -maxrate 12M -bufsize 24M -c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"${output}\"`;\n})() }}"
+      },
+      "id": "ffmpeg-render",
+      "name": "FFmpeg - Render Final",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1500, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Calcular Duracion Loop').first().json;\nconst timestamp = data.timestamp;\nconst outputPath = `E:\\\\RainTube\\\\output\\\\${timestamp}_final.mp4`;\nconst fs = require('fs');\n\nlet fileSize = 'desconocido';\ntry {\n  const stats = fs.statSync(outputPath);\n  fileSize = (stats.size / (1024 * 1024 * 1024)).toFixed(2) + ' GB';\n} catch(e) {}\n\nreturn [{ json: {\n  tema: data.tema,\n  video_final: outputPath,\n  duracion_horas: data.duracion_horas,\n  tamano: fileSize,\n  timestamp: timestamp,\n  archivos_video: data.archivos_video,\n  archivos_audio: data.archivos_audio\n} }];"
+      },
+      "id": "resultado-final",
+      "name": "Resultado Final",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1750, 300]
+    }
+  ],
+  "connections": {
+    "Trigger Manual": { "main": [[{ "node": "Recibir Datos Material", "type": "main", "index": 0 }]] },
+    "Recibir Datos Material": { "main": [[{ "node": "Preparar Lista Concatenacion", "type": "main", "index": 0 }]] },
+    "Preparar Lista Concatenacion": { "main": [[{ "node": "FFmpeg - Concatenar Clips", "type": "main", "index": 0 }]] },
+    "FFmpeg - Concatenar Clips": { "main": [[{ "node": "Calcular Duracion Loop", "type": "main", "index": 0 }]] },
+    "Calcular Duracion Loop": { "main": [[{ "node": "FFmpeg - Loop Video", "type": "main", "index": 0 }, { "node": "FFmpeg - Loop Audio", "type": "main", "index": 0 }]] },
+    "FFmpeg - Loop Video": { "main": [[{ "node": "FFmpeg - Render Final", "type": "main", "index": 0 }]] },
+    "FFmpeg - Loop Audio": { "main": [[{ "node": "FFmpeg - Render Final", "type": "main", "index": 0 }]] },
+    "FFmpeg - Render Final": { "main": [[{ "node": "Resultado Final", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "RainTube" }]
+}

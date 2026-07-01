@@ -1,0 +1,43 @@
+# === Binarios grandes (audio / video / imagenes) ===
+*.mp3
+*.mp4
+*.wav
+*.mov
+*.mkv
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# === Carpetas de trabajo (contenido pesado / generado) ===
+/downloads/
+/processing/
+/output/
+/thumbnails/
+/projects/
+/templates/
+
+# === Secretos: NUNCA subir ===
+.env
+config/api-keys.json
+config/telegram-config.json
+config/telegram-owner.json
+config/telegram-history.json
+config/telegram-offset.json
+config/wf1_current.json
+config/workflow-1-obtener-material.json
+config/workflow-3-metadata-thumbnail.json
+config/workflow-telegram-bot.json
+
+# === Temporales / scripts de setup ===
+config/_setup_repo.py
+config/_validate_shorts.js
+config/pipeline_output.json
+config/pipeline_wf3_output.json
+
+# === Sistema ===
+Thumbs.db
+desktop.ini
+node_modules/
+__pycache__/
+*.pyc

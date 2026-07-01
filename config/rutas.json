@@ -1,0 +1,12 @@
+{
+  "ffmpeg": "C:\\Users\\Jowy\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.0.1-full_build\\bin\\ffmpeg.exe",
+  "ffprobe": "C:\\Users\\Jowy\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.0.1-full_build\\bin\\ffprobe.exe",
+  "carpetas": {
+    "videos_descargados": "E:\\RainTube\\downloads\\videos",
+    "audio_descargado": "E:\\RainTube\\downloads\\audio",
+    "procesando": "E:\\RainTube\\processing",
+    "output_final": "E:\\RainTube\\output",
+    "thumbnails": "E:\\RainTube\\thumbnails",
+    "logs": "E:\\RainTube\\logs"
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "name": "RainTube - Publicar Video YouTube",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "raintube",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "rt-trigger",
+      "name": "Webhook RainTube",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "raintube-publicar"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\n\n// ── Leer episodio del webhook o auto-detectar ──\nconst body = $input.first().json?.body || $input.first().json || {};\nlet EPISODIO = parseInt(body.episodio);\n\nif (!EPISODIO || isNaN(EPISODIO)) {\n  // Auto-detectar: el siguiente episodio no publicado\n  const logPath = 'E:\\\\RainTube\\\\logs\\\\videos_publicados.json';\n  let publicados = [];\n  try { publicados = JSON.parse(fs.readFileSync(logPath, 'utf8')).map(e => e.episodio); }\n  catch(e) { publicados = []; }\n  for (let i = 1; i <= 5; i++) {\n    if (!publicados.includes(i)) { EPISODIO = i; break; }\n  }\n  if (!EPISODIO) throw new Error('Todos los episodios (1-5) ya han sido publicados.');\n  console.log(`Auto-detectado: EP${EPISODIO}`);\n} else {\n  console.log(`Episodio solicitado: EP${EPISODIO}`);\n}\n\nconst episodios = {\n  1: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df1cbee520ee0013d47a1b/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep1_tormenta_oceano.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Tormenta-Oceano-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep1-tormenta-oceano.json',\n    keyword:    'rain ocean waves sleep 8 hours'\n  },\n  2: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df1c32a553700013328d7c/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep2_gran_tormenta.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Gran-Tormenta-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep2-gran-tormenta.json',\n    keyword:    'heavy thunderstorm rain sleep 8 hours'\n  },\n  3: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0f6c2b96360012fd2512/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep3_islas_griegas.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Islas-Griegas-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep3-islas-griegas.json',\n    keyword:    'greek island water sounds sleep 8 hours'\n  },\n  4: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df2a1e4d31eb0012ec117d/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep4_ruido_blanco_bebe.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Ruido-Blanco-Bebe-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep4-ruido-blanco-bebe.json',\n    keyword:    'white noise baby sleep 8 hours'\n  },\n  5: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0df003b8d30012f3140d/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep5_ruido_blanco_agua.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Ruido-Blanco-Agua-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep5-ruido-blanco-agua.json',\n    keyword:    'water sounds white noise sleep 8 hours'\n  }\n};\n\nconst ep = episodios[EPISODIO];\nif (!ep) throw new Error(`Episodio ${EPISODIO} no definido`);\n\nif (!fs.existsSync(ep.seo_path)) throw new Error(`SEO no encontrado: ${ep.seo_path} — créalo primero`);\n\nconst seo = JSON.parse(fs.readFileSync(ep.seo_path, 'utf8'));\nconst descripcion = seo.es.description + '\\n\\n---\\n\\n' + seo.en.description;\n\nreturn [{ json: {\n  episodio: EPISODIO,\n  audio_url:  ep.audio_url,\n  audio_path: ep.audio_path,\n  video_path: ep.video_path,\n  seo_path:   ep.seo_path,\n  titulo:     seo.es.title,\n  descripcion,\n  keyword:    ep.keyword\n} }];"
+      },
+      "id": "rt-seleccionar",
+      "name": "Seleccionar Episodio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const https = require('https');\nconst http  = require('http');\nconst fs    = require('fs');\nconst datos = $input.first().json;\n\n// Si el audio ya existe en disco, saltamos la descarga\nif (fs.existsSync(datos.audio_path)) {\n  console.log(`Audio ya existe: ${datos.audio_path}`);\n  return [{ json: datos }];\n}\n\nconsole.log(`Descargando EP${datos.episodio} desde acast...`);\n\nfunction descargar(url, destino, intentos) {\n  return new Promise((resolve, reject) => {\n    const proto = url.startsWith('https') ? https : http;\n    proto.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {\n      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {\n        // Seguir redireccion\n        descargar(res.headers.location, destino, intentos).then(resolve).catch(reject);\n        return;\n      }\n      if (res.statusCode !== 200) {\n        reject(new Error(`HTTP ${res.statusCode} descargando audio`)); return;\n      }\n      const total = parseInt(res.headers['content-length'] || '0');\n      let descargado = 0;\n      const archivo = fs.createWriteStream(destino);\n      res.on('data', chunk => {\n        descargado += chunk.length;\n        if (total > 0 && descargado % (1024*1024*50) < chunk.length) {\n          console.log(`  ${Math.round(descargado/1024/1024)}MB / ${Math.round(total/1024/1024)}MB`);\n        }\n      });\n      res.pipe(archivo);\n      archivo.on('finish', () => { archivo.close(); resolve(); });\n      archivo.on('error', (e) => { fs.unlink(destino, ()=>{}); reject(e); });\n    }).on('error', (e) => { fs.unlink(destino, ()=>{}); reject(e); });\n  });\n}\n\nawait descargar(datos.audio_url, datos.audio_path, 0);\nconsole.log(`✅ Audio descargado: ${datos.audio_path}`);\n\nreturn [{ json: datos }];"
+      },
+      "id": "rt-descargar",
+      "name": "Descargar Audio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { spawn } = require('child_process');\nconst fs = require('fs');\nconst datos = $input.first().json;\n\n// Si el video ya existe, saltamos el render\nif (fs.existsSync(datos.video_path)) {\n  console.log(`Video ya existe: ${datos.video_path}`);\n  return [{ json: datos }];\n}\n\nconsole.log(`Creando video con FFmpeg para EP${datos.episodio}...`);\nconsole.log(`Audio: ${datos.audio_path}`);\nconsole.log(`Salida: ${datos.video_path}`);\n\nconst resultado = await new Promise((resolve, reject) => {\n  const FFMPEG = 'C:\\\\Users\\\\Jowy\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Packages\\\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\\\ffmpeg-8.0.1-full_build\\\\bin\\\\ffmpeg.exe';\n  const proc = spawn(FFMPEG, [\n    '-y',\n    '-ss', '86',\n    '-i', datos.audio_path,\n    '-f', 'lavfi', '-i', 'color=c=black:size=1920x1080:rate=24',\n    '-map', '1:v',\n    '-map', '0:a',\n    '-c:v', 'libx264',\n    '-preset', 'ultrafast',\n    '-crf', '28',\n    '-c:a', 'aac',\n    '-b:a', '128k',\n    '-t', '28800',\n    datos.video_path\n  ]);\n\n  let stderr = '';\n  proc.stderr.on('data', d => {\n    const linea = d.toString();\n    stderr += linea;\n    // Mostrar progreso cada vez que FFmpeg reporta tiempo\n    if (linea.includes('time=')) {\n      const match = linea.match(/time=(\\S+)/);\n      if (match) process.stdout.write(`\\rFFmpeg: ${match[1]}`);\n    }\n  });\n\n  proc.on('close', (code) => {\n    if (code === 0) resolve({ ok: true });\n    else reject(new Error(`FFmpeg falló (código ${code}): ${stderr.slice(-300)}`));\n  });\n});\n\nconst sizeMB = Math.round(fs.statSync(datos.video_path).size / 1024 / 1024);\nconsole.log(`\\n✅ Video creado: ${datos.video_path} (${sizeMB} MB)`);\n\nreturn [{ json: datos }];"
+      },
+      "id": "rt-ffmpeg",
+      "name": "FFmpeg - Crear Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "X-Upload-Content-Type", "value": "video/mp4" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ snippet: { title: $json.titulo, description: $json.descripcion, categoryId: '22', defaultLanguage: 'es', defaultAudioLanguage: 'es' }, status: { privacyStatus: 'public', selfDeclaredMadeForKids: false, license: 'creativeCommon' } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "rt-yt-init",
+      "name": "YouTube - Iniciar Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 300],
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "7pPcu6xc0jmPO7pQ",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs    = require('fs');\nconst https = require('https');\n\nconst datos   = $('Seleccionar Episodio').first().json;\nconst response = $input.first().json;\nconst uploadUrl = response.headers?.location || response.headers?.Location;\n\nif (!uploadUrl) throw new Error('YouTube no devolvió URL de upload.');\n\nconst videoPath = datos.video_path;\nconst fileSize  = fs.statSync(videoPath).size;\nconsole.log(`Subiendo: ${videoPath} (${(fileSize/1024/1024).toFixed(0)} MB)`);\n\nconst result = await new Promise((resolve, reject) => {\n  const fileStream = fs.createReadStream(videoPath);\n  const req = https.request(uploadUrl, {\n    method: 'PUT',\n    headers: { 'Content-Length': fileSize, 'Content-Type': 'video/mp4' }\n  }, (res) => {\n    let body = '';\n    res.on('data', chunk => body += chunk);\n    res.on('end', () => {\n      try { resolve(JSON.parse(body)); }\n      catch(e) { reject(new Error('Respuesta inválida: ' + body)); }\n    });\n  });\n  req.on('error', reject);\n  fileStream.pipe(req);\n});\n\nif (!result.id) throw new Error('YouTube no devolvió video ID: ' + JSON.stringify(result));\n\nreturn [{ json: {\n  video_id: result.id,\n  url:      `https://www.youtube.com/watch?v=${result.id}`,\n  titulo:   result.snippet?.title || datos.titulo,\n  status:   result.status?.uploadStatus,\n  episodio: datos.episodio\n} }];"
+      },
+      "id": "rt-yt-upload",
+      "name": "YouTube - Subir Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://rapidtags.io/api/tags/find/anon?q={{ encodeURIComponent($('Seleccionar Episodio').first().json.keyword) }}",
+        "options": {}
+      },
+      "id": "rt-rapidtags",
+      "name": "RapidTags - Generar Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const datos    = $('Seleccionar Episodio').first().json;\nconst upload   = $('YouTube - Subir Video').first().json;\nconst rapidData = $input.first().json;\n\nlet tags = [];\ntry {\n  const keywords = rapidData?.generator?.serpKeywords || [];\n  const sorted = keywords.sort((a, b) => b.score - a.score);\n  let totalChars = 0;\n  for (const kw of sorted) {\n    const tag = kw.name.trim().replace(/[<>&\"#]/g, '');\n    if (!tag) continue;\n    const cost = tag.length + (tags.length > 0 ? 1 : 0);\n    if (totalChars + cost <= 500) { tags.push(tag); totalChars += cost; }\n    else break;\n  }\n  console.log(`RapidTags: ${tags.length} tags (${totalChars} chars)`);\n} catch(e) {\n  console.log('RapidTags falló:', e.message);\n  tags = [datos.keyword];\n}\n\nif (tags.length === 0) tags = [datos.keyword];\n\nreturn [{ json: {\n  video_id: upload.video_id,\n  body: {\n    id: upload.video_id,\n    snippet: {\n      title:                datos.titulo,\n      description:          datos.descripcion,\n      tags:                 tags,\n      categoryId:           '22',\n      defaultLanguage:      'es',\n      defaultAudioLanguage: 'es'\n    }\n  }\n} }];"
+      },
+      "id": "rt-preparar-tags",
+      "name": "Preparar Body Tags",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs     = require('fs');\nconst upload = $('YouTube - Subir Video').first().json;\nconst tags   = $input.first().json;\n\nconst log = {\n  fecha:             new Date().toISOString(),\n  episodio:          upload.episodio,\n  video_id:          upload.video_id,\n  url:               upload.url,\n  titulo:            upload.titulo,\n  tags_actualizados: !tags.error,\n  status:            upload.status\n};\n\nconst logPath = 'E:\\\\RainTube\\\\logs\\\\videos_publicados.json';\nlet logs = [];\ntry { logs = JSON.parse(fs.readFileSync(logPath, 'utf8')); } catch(e) {}\nlogs.push(log);\nfs.writeFileSync(logPath, JSON.stringify(logs, null, 2));\n\nreturn [{ json: {\n  mensaje:           `✅ Episodio ${upload.episodio} publicado en YouTube`,\n  url:               upload.url,\n  titulo:            upload.titulo,\n  video_id:          upload.video_id,\n  tags_actualizados: !tags.error\n} }];"
+      },
+      "id": "rt-log",
+      "name": "Guardar Log + Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2160, 300]
+    }
+  ],
+  "connections": {
+    "Webhook RainTube": {
+      "main": [[{ "node": "Seleccionar Episodio", "type": "main", "index": 0 }]]
+    },
+    "Seleccionar Episodio": {
+      "main": [[{ "node": "Descargar Audio", "type": "main", "index": 0 }]]
+    },
+    "Descargar Audio": {
+      "main": [[{ "node": "FFmpeg - Crear Video", "type": "main", "index": 0 }]]
+    },
+    "FFmpeg - Crear Video": {
+      "main": [[{ "node": "YouTube - Iniciar Upload", "type": "main", "index": 0 }]]
+    },
+    "YouTube - Iniciar Upload": {
+      "main": [[{ "node": "YouTube - Subir Video", "type": "main", "index": 0 }]]
+    },
+    "YouTube - Subir Video": {
+      "main": [[{ "node": "RapidTags - Generar Tags", "type": "main", "index": 0 }]]
+    },
+    "RapidTags - Generar Tags": {
+      "main": [[{ "node": "Preparar Body Tags", "type": "main", "index": 0 }]]
+    },
+    "Preparar Body Tags": {
+      "main": [[{ "node": "Guardar Log + Resultado", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": []
+}
