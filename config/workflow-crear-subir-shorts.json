@@ -1,0 +1,181 @@
+{
+  "name": "RainTube - Crear y Subir Shorts",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "raintube-shorts",
+        "options": {}
+      },
+      "id": "short-webhook",
+      "name": "Webhook Shorts",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        400,
+        500
+      ],
+      "webhookId": "raintube-shorts-wh"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst body = $input.first().json?.body || $input.first().json || {};\nlet EP = parseInt(body.episodio);\nlet SHORT_NUM = parseInt(body.short) || 1;\n\nif (!EP || isNaN(EP)) throw new Error('Falta episodio. Envia {\"episodio\": 6, \"short\": 1}');\n\nconst episodios = {\n  1: {\n    audio_path: 'E:/RainTube/ep1_tormenta_oceano.mp3',\n    short1_title: 'Tormenta y Olas del Oceano para Dormir Profundo #shorts',\n    short2_title: 'Sonido de Lluvia y Olas para Estudiar con Concentracion #shorts',\n    tags: 'tormenta,olas del oceano,ocean storm,rain sounds,dormir,sleep'\n  },\n  2: {\n    audio_path: 'E:/RainTube/ep2_gran_tormenta.mp3',\n    short1_title: 'Gran Tormenta de Lluvia y Truenos para Dormir #shorts',\n    short2_title: 'Lluvia Intensa y Truenos para Estudiar Concentrado #shorts',\n    tags: 'gran tormenta,lluvia y truenos,thunderstorm,rain,dormir,sleep'\n  },\n  3: {\n    audio_path: 'E:/RainTube/ep3_islas_griegas.mp3',\n    short1_title: 'Sonido de Agua de las Islas Griegas para Dormir #shorts',\n    short2_title: 'Agua Cristalina de Grecia para Estudiar y Relajarte #shorts',\n    tags: 'islas griegas,sonido de agua,greek islands,water sounds,dormir,sleep'\n  },\n  4: {\n    audio_path: 'E:/RainTube/ep4_ruido_blanco_bebe.mp3',\n    short1_title: 'Lluvia Suave y Calmante para Dormir Toda la Noche #shorts',\n    short2_title: 'Sonido de Lluvia Relajante para Estudiar en Calma #shorts',\n    tags: 'lluvia suave,lluvia para dormir,gentle rain,rain sleep,dormir,study'\n  },\n  5: {\n    audio_path: 'E:/RainTube/ep5_ruido_blanco_agua.mp3',\n    short1_title: 'Sonido de Agua Relajante para Conciliar el Sueno #shorts',\n    short2_title: 'Agua Fluyendo para Concentrarte al Maximo #shorts',\n    tags: 'sonido de agua,agua relajante,water sounds,flowing water,dormir,study'\n  },\n  6: {\n    audio_path: 'E:/RainTube/ep6_ventilador_gigante.mp3',\n    short1_title: 'Lluvia Constante en la Noche para Dormir Rapido #shorts',\n    short2_title: 'Sonido de Lluvia Nocturna para Estudiar sin Distracciones #shorts',\n    tags: 'lluvia nocturna,lluvia constante,night rain,steady rain,dormir,study'\n  },\n  7: {\n    audio_path: 'E:/RainTube/ep7_lluvia_agua.mp3',\n    short1_title: 'Lluvia y Agua Natural para Dormir como un Bebe #shorts',\n    short2_title: 'Sonido de Lluvia y Agua para Estudiar con Total Enfoque #shorts',\n    tags: 'lluvia y agua,rain and water,sonidos naturales,nature sounds,dormir,study'\n  },\n  8: {\n    audio_path: 'E:/RainTube/ep8_ruido_blanco_bebe_dormir.mp3',\n    short1_title: 'Lluvia en la Costa de Bali para Dormir Profundamente #shorts',\n    short2_title: 'Sonido de Lluvia Tropical de Bali para Estudiar #shorts',\n    tags: 'lluvia bali,costa de bali,bali rain,tropical rain,dormir,study'\n  },\n  9: {\n    audio_path: 'E:/RainTube/ep9_lluvia_tormenta.mp3',\n    short1_title: 'Lluvia y Tormenta en los Alpes Suizos para Dormir #shorts',\n    short2_title: 'Truenos en los Alpes para Estudiar con Concentracion #shorts',\n    tags: 'lluvia alpes,tormenta suiza,swiss alps rain,thunder,dormir,study'\n  },\n  10: {\n    audio_path: 'E:/RainTube/ep10_lluvia_borneo.mp3',\n    short1_title: 'Lluvia Tropical en la Selva de Borneo para Dormir #shorts',\n    short2_title: 'Sonido de Jungla y Lluvia de Borneo para Estudiar #shorts',\n    tags: 'lluvia borneo,selva tropical,borneo rain,jungle rain,dormir,study'\n  },\n  11: {\n    audio_path: 'E:/RainTube/ep11_cenotes_mexico.mp3',\n    short1_title: 'Rain in the Cenotes of Mexico for Deep Sleep #shorts',\n    short2_title: 'Cenote Water Sounds for Study and Focus #shorts',\n    tags: 'cenotes mexico,sonido de agua,water sounds,cenote,dormir,study'\n  },\n  12: {\n    audio_path: 'E:/RainTube/ep12_lluvia_kioto.mp3',\n    short1_title: 'Lluvia en los Templos de Kioto para Dormir Profundo #shorts',\n    short2_title: 'Lluvia Zen en Kioto para Estudiar con Concentracion #shorts',\n    tags: 'lluvia kioto,templos japoneses,kyoto rain,zen rain,dormir,study'\n  },\n  13: {\n    audio_path: 'E:/RainTube/ep13_cascadas_islandia.mp3',\n    short1_title: 'Iceland Waterfalls for Deep Sleep #shorts',\n    short2_title: 'Icelandic Waterfall Sounds for Study #shorts',\n    tags: 'cascadas islandia,sonido de agua,iceland waterfalls,nordic,dormir,study'\n  },\n  14: {\n    audio_path: 'E:/RainTube/ep14_lluvia_machu_picchu.mp3',\n    short1_title: 'Lluvia en Machu Picchu para Dormir Profundamente #shorts',\n    short2_title: 'Sonido de Lluvia Andina para Estudiar con Concentracion #shorts',\n    tags: 'lluvia machu picchu,machu picchu rain,andes,sonidos de lluvia,dormir,study'\n  },\n  15: {\n    audio_path: 'E:/RainTube/ep15_cataratas_iguazu.mp3',\n    short1_title: 'Iguazu Falls for Deep Sleep #shorts',\n    short2_title: 'Iguazu Falls Sounds for Study and Focus #shorts',\n    tags: 'cataratas iguazu,iguazu falls,sonido de agua,waterfall sounds,dormir,study'\n  },\n  16: {\n    audio_path: 'E:/RainTube/ep16_fiordos_noruega.mp3',\n    short1_title: 'Norway Fjords for Deep Sleep #shorts',\n    short2_title: 'Norway Fjord Sounds for Study #shorts',\n    tags: 'fiordos noruega,norway fjords,sonido de agua,nordic,dormir,study'\n  },\n  17: {\n    audio_path: 'E:/RainTube/ep17_lluvia_maldivas.mp3',\n    short1_title: 'Rain in the Maldives for Deep Sleep #shorts',\n    short2_title: 'Maldives Rain Sounds for Study #shorts',\n    tags: 'lluvia maldivas,maldives rain,tropical rain,beach rain,dormir,study'\n  },\n  18: {\n    audio_path: 'E:/RainTube/ep18_lluvia_vietnam.mp3',\n    short1_title: 'Lluvia Monzonica en Vietnam para Dormir Profundamente #shorts',\n    short2_title: 'Sonido de Monzon en Vietnam para Estudiar Concentrado #shorts',\n    tags: 'lluvia vietnam,monzon,monsoon rain,vietnam,tropical rain,dormir,study'\n  },\n  19: {\n    audio_path: 'E:/RainTube/ep19_lluvia_angkor.mp3',\n    short1_title: 'Rain at Angkor Wat for Deep Sleep #shorts',\n    short2_title: 'Angkor Wat Rain for Study and Focus #shorts',\n    tags: 'lluvia angkor,angkor wat,templos camboya,temple rain,dormir,study'\n  },\n  20: {\n    audio_path: 'E:/RainTube/ep20_cataratas_victoria.mp3',\n    short1_title: 'Victoria Falls for Deep Sleep #shorts',\n    short2_title: 'Victoria Falls Sounds for Study #shorts',\n    tags: 'cataratas victoria,victoria falls,sonido de agua,waterfall sounds,africa,dormir,study'\n  },\n  21: {\n    audio_path: 'E:/RainTube/ep21_lluvia_patagonia.mp3',\n    short1_title: 'Lluvia en la Patagonia para Dormir Profundamente #shorts',\n    short2_title: 'Tormenta Patagonica para Estudiar con Concentracion #shorts',\n    tags: 'lluvia patagonia,patagonia rain,tormenta,southern rain,argentina,dormir,study'\n  },\n  22: {\n    audio_path: 'E:/RainTube/ep22_acantilados_moher.mp3',\n    short1_title: 'Cliffs of Moher for Deep Sleep #shorts',\n    short2_title: 'Ocean Waves in Ireland for Study #shorts',\n    tags: 'acantilados moher,cliffs of moher,olas,ocean sounds,irlanda,dormir,study'\n  },\n  23: {\n    audio_path: 'E:/RainTube/ep23_lluvia_petra.mp3',\n    short1_title: 'Lluvia en la Ciudad de Petra para Dormir Profundo #shorts',\n    short2_title: 'Sonido de Lluvia en Petra para Estudiar Concentrado #shorts',\n    tags: 'lluvia petra,petra rain,jordania,ancient city,sonidos de lluvia,dormir,study'\n  },\n  24: {\n    audio_path: 'E:/RainTube/ep24_lluvia_escocia.mp3',\n    short1_title: 'Lluvia en las Highlands de Escocia para Dormir #shorts',\n    short2_title: 'Sonido de Lluvia Escocesa para Estudiar Concentrado #shorts',\n    tags: 'lluvia escocia,highlands,scottish rain,celtic,dormir,study'\n  },\n  25: {\n    audio_path: 'E:/RainTube/ep25_lluvia_baikal.mp3',\n    short1_title: 'Rain at Lake Baikal for Deep Sleep #shorts',\n    short2_title: 'Siberian Rain Sounds for Study #shorts',\n    tags: 'lluvia baikal,lago baikal,siberian rain,rusia,sonidos de lluvia,dormir,study'\n  },\n  26: {\n    audio_path: 'E:/RainTube/ep26_lluvia_amazonas.mp3',\n    short1_title: 'Rain in the Amazon River for Deep Sleep #shorts',\n    short2_title: 'Amazon Jungle Rain for Study #shorts',\n    tags: 'lluvia amazonas,amazon rain,rainforest,selva,rio amazonas,dormir,study'\n  },\n  27: {\n    audio_path: 'E:/RainTube/ep27_rain_halong_bay.mp3',\n    short1_title: 'Rain over Halong Bay for Deep Sleep #shorts',\n    short2_title: 'Halong Bay Rain Sounds for Study and Focus #shorts',\n    tags: 'halong bay rain,vietnam rain,bay sounds,rain for sleep,study sounds'\n  },\n  28: {\n    audio_path: 'E:/RainTube/ep28_rain_redwood.mp3',\n    short1_title: 'Rain in the Redwood Forest for Deep Sleep #shorts',\n    short2_title: 'Forest Rain Sounds for Study and Focus #shorts',\n    tags: 'redwood forest,rain sounds,california,forest rain,sleep,study'\n  },\n  29: {\n    audio_path: 'E:/RainTube/ep29_rain_tokyo.mp3',\n    short1_title: 'Rain in a Tokyo Street for Deep Sleep #shorts',\n    short2_title: 'Tokyo City Rain for Study and Focus #shorts',\n    tags: 'tokyo rain,city rain,night rain,japan,sleep,study'\n  },\n  30: {\n    audio_path: 'E:/RainTube/ep30_rain_cabin_porch.mp3',\n    short1_title: 'Rain on a Cozy Cabin Porch for Deep Sleep #shorts',\n    short2_title: 'Cabin Rain and Thunder for Study and Focus #shorts',\n    tags: 'cabin rain,cozy rain,porch rain,thunder,sleep,study'\n  }\n};\n\nconst ep = episodios[EP];\nif (!ep) throw new Error('Episodio ' + EP + ' no definido.');\nif (!fs.existsSync(ep.audio_path)) throw new Error('Audio no existe: ' + ep.audio_path);\n\nconst shortsConfig = {\n  1: {\n    ss: 1800,\n    titulo: ep.short1_title,\n    desc: 'Sonido relajante de la naturaleza para dormir rapido. 3 minutos de puro relax.\\n\\nSuscribete para mas sonidos relajantes.\\n#shorts #sonidosparadormir #lluvia #dormir'\n  },\n  2: {\n    ss: 14400,\n    titulo: ep.short2_title,\n    desc: '3 minutos de sonido natural para estudiar o trabajar con concentracion total.\\n\\nSuscribete para mas sonidos de concentracion.\\n#shorts #estudiar #concentracion #lluvia'\n  }\n};\n\nconst sc = shortsConfig[SHORT_NUM];\nif (!sc) throw new Error('Short ' + SHORT_NUM + ' no definido. Usa 1 o 2.');\n\nreturn [{ json: {\n  episodio: EP,\n  audio_path: ep.audio_path,\n  short_name: 'short' + SHORT_NUM,\n  ss: sc.ss,\n  video_path: 'E:/RainTube/output\\short-ep' + EP + '-short' + SHORT_NUM + '.mp4',\n  titulo: sc.titulo,\n  descripcion: sc.desc,\n  tags: ep.tags,\n  privacy: 'unlisted'\n} }];"
+      },
+      "id": "short-config",
+      "name": "Configurar Shorts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { spawn } = require('child_process');\nconst fs = require('fs');\nconst datos = $input.first().json;\n\nif (fs.existsSync(datos.video_path)) {\n  const size = fs.statSync(datos.video_path).size;\n  if (size > 100000) {\n    console.log('Short ya existe: ' + datos.video_path + ' (' + Math.round(size/1024/1024) + ' MB)');\n    return [{ json: datos }];\n  }\n  fs.unlinkSync(datos.video_path);\n}\n\nconsole.log('Creando ' + datos.short_name + ' desde segundo ' + datos.ss + '...');\n\nconst FFMPEG = 'C:\\\\Users\\\\Jowy\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Packages\\\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\\\ffmpeg-8.0.1-full_build\\\\bin\\\\ffmpeg.exe';\n\nawait new Promise((resolve, reject) => {\n  const proc = spawn(FFMPEG, [\n    '-y',\n    '-ss', String(datos.ss + 86),\n    '-t', '150',\n    '-i', datos.audio_path,\n    '-f', 'lavfi', '-i', 'color=c=black:s=1080x1920:r=24',\n    '-map', '1:v', '-map', '0:a',\n    '-af', 'afade=t=in:d=0.3,afade=t=out:st=149.7:d=0.3',\n    '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '28',\n    '-c:a', 'aac', '-b:a', '128k',\n    '-shortest',\n    datos.video_path\n  ]);\n\n  let stderr = '';\n  proc.stderr.on('data', d => {\n    stderr += d.toString();\n    if (stderr.length > 5000) stderr = stderr.substring(stderr.length - 3000);\n  });\n  proc.on('close', code => {\n    if (code === 0) resolve();\n    else reject(new Error('FFmpeg code ' + code + ': ' + stderr.slice(-300)));\n  });\n  proc.on('error', e => reject(e));\n});\n\nconst sizeMB = Math.round(fs.statSync(datos.video_path).size / 1024 / 1024);\nconsole.log(datos.short_name + ' creado: ' + sizeMB + ' MB');\nreturn [{ json: datos }];"
+      },
+      "id": "short-ffmpeg",
+      "name": "FFmpeg - Crear Short",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Upload-Content-Type",
+              "value": "video/mp4"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ snippet: { title: $json.titulo, description: $json.descripcion, categoryId: '22', defaultLanguage: 'es', defaultAudioLanguage: 'es' }, status: { privacyStatus: 'unlisted', selfDeclaredMadeForKids: false, license: 'creativeCommon' } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "short-yt-init",
+      "name": "YouTube - Iniciar Upload Short",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        500
+      ],
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "7pPcu6xc0jmPO7pQ",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst https = require('https');\nconst datos = $('FFmpeg - Crear Short').first().json;\nconst response = $input.first().json;\nconst uploadUrl = response.headers?.location || response.headers?.Location;\n\nif (!uploadUrl) throw new Error('No upload URL. Response: ' + JSON.stringify(response).slice(0, 500));\n\nconst fileSize = fs.statSync(datos.video_path).size;\nconsole.log('Subiendo ' + datos.short_name + ': ' + Math.round(fileSize/1024/1024) + ' MB');\n\nconst result = await new Promise((resolve, reject) => {\n  const fileStream = fs.createReadStream(datos.video_path);\n  const req = https.request(uploadUrl, {\n    method: 'PUT',\n    headers: { 'Content-Length': fileSize, 'Content-Type': 'video/mp4' }\n  }, (res) => {\n    let body = '';\n    res.on('data', chunk => body += chunk);\n    res.on('end', () => {\n      try { resolve(JSON.parse(body)); }\n      catch(e) { reject(new Error('Respuesta invalida: ' + body)); }\n    });\n  });\n  req.on('error', reject);\n  fileStream.pipe(req);\n});\n\nif (!result.id) throw new Error('No video ID: ' + JSON.stringify(result).slice(0, 300));\n\nconsole.log(datos.short_name + ' subido: https://www.youtube.com/shorts/' + result.id);\n\nreturn [{ json: {\n  video_id: result.id,\n  url: 'https://www.youtube.com/shorts/' + result.id,\n  titulo: result.snippet?.title || datos.titulo,\n  status: result.status?.uploadStatus,\n  episodio: datos.episodio,\n  short_name: datos.short_name\n} }];"
+      },
+      "id": "short-yt-upload",
+      "name": "YouTube - Subir Short",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst upload = $input.first().json;\n\nconst log = {\n  fecha: new Date().toISOString(),\n  episodio: upload.episodio,\n  short_name: upload.short_name,\n  video_id: upload.video_id,\n  url: upload.url,\n  titulo: upload.titulo,\n  status: upload.status\n};\n\nconst logPath = 'E:\\\\RainTube\\\\logs\\\\shorts_publicados.json';\nlet logs = [];\ntry { logs = JSON.parse(fs.readFileSync(logPath, 'utf8')); } catch(e) {}\nlogs.push(log);\nfs.writeFileSync(logPath, JSON.stringify(logs, null, 2));\nconsole.log('Short guardado: ' + upload.url);\n\nreturn [{ json: { mensaje: 'Short EP' + upload.episodio + ' ' + upload.short_name + ' publicado', url: upload.url, titulo: upload.titulo } }];"
+      },
+      "id": "short-log",
+      "name": "Guardar Log Short",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        500
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Shorts": {
+      "main": [
+        [
+          {
+            "node": "Configurar Shorts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurar Shorts": {
+      "main": [
+        [
+          {
+            "node": "FFmpeg - Crear Short",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FFmpeg - Crear Short": {
+      "main": [
+        [
+          {
+            "node": "YouTube - Iniciar Upload Short",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube - Iniciar Upload Short": {
+      "main": [
+        [
+          {
+            "node": "YouTube - Subir Short",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube - Subir Short": {
+      "main": [
+        [
+          {
+            "node": "Guardar Log Short",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  }
+}

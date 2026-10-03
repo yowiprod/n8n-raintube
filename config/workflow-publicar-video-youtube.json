@@ -1,0 +1,261 @@
+{
+  "name": "RainTube - Publicar Video YouTube",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "raintube",
+        "options": {}
+      },
+      "id": "12fc91b1-e392-4d03-b67d-4e432afb8653",
+      "name": "Webhook RainTube",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        944
+      ],
+      "webhookId": "raintube-publicar"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\n\nconst body = $input.first().json?.body || $input.first().json || {};\nlet EPISODIO = parseInt(body.episodio);\n\nif (!EPISODIO || isNaN(EPISODIO)) {\n  const logPath = 'E:\\\\RainTube\\\\logs\\\\videos_publicados.json';\n  let publicados = [];\n  try { publicados = JSON.parse(fs.readFileSync(logPath, 'utf8')).map(e => e.episodio); }\n  catch(e) { publicados = []; }\n  for (let i = 1; i <= 34; i++) {\n    if (!publicados.includes(i)) { EPISODIO = i; break; }\n  }\n  if (!EPISODIO) throw new Error('Todos los episodios (1-30) ya han sido publicados.');\n  console.log('Auto-detectado: EP' + EPISODIO);\n} else {\n  console.log('Episodio solicitado: EP' + EPISODIO);\n}\n\nconst episodios = {\n  1: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df1cbee520ee0013d47a1b/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep1_tormenta_oceano.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Tormenta-Oceano-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep1-tormenta-oceano.json',\n    keyword:    'rain ocean waves sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  2: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df1c32a553700013328d7c/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep2_gran_tormenta.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Gran-Tormenta-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep2-gran-tormenta.json',\n    keyword:    'heavy thunderstorm rain sleep 8 hours',\n    privacy:    'public'\n  },\n  3: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0f6c2b96360012fd2512/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep3_islas_griegas.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Islas-Griegas-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep3-islas-griegas.json',\n    keyword:    'greek island water sounds sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  4: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df2a1e4d31eb0012ec117d/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep4_ruido_blanco_bebe.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Ruido-Blanco-Bebe-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep4-ruido-blanco-bebe.json',\n    keyword:    'white noise baby sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  5: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0df003b8d30012f3140d/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep5_ruido_blanco_agua.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Ruido-Blanco-Agua-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep5-ruido-blanco-agua.json',\n    keyword:    'water sounds white noise sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  6: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db2f6103b8d30012f3aabf/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep6_ventilador_gigante.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Ventilador-Gigante-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep6-ventilador-gigante.json',\n    keyword:    'giant fan white noise sleep study 8 hours',\n    privacy:    'unlisted'\n  },\n  7: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df101dae16790012a8601f/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep7_lluvia_agua.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Lluvia-Agua-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep7-lluvia-agua.json',\n    keyword:    'rain water sounds sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  8: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df2ba54d31eb0012ec1866/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep8_ruido_blanco_bebe_dormir.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Ruido-Blanco-Bebe-Dormir-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep8-ruido-blanco-bebe-dormir.json',\n    keyword:    'white noise baby sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  9: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df0f84a553700013325064/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep9_lluvia_tormenta.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Lluvia-Tormenta-Alpes-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep9-lluvia-tormenta.json',\n    keyword:    'rain and thunder sounds sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  10: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df101dae16790012a8601f/media.mp3',\n    audio_path: 'E:\\\\RainTube\\\\ep10_lluvia_borneo.mp3',\n    video_path: 'E:\\\\RainTube\\\\output\\\\RainTube-Lluvia-Borneo-8h.mp4',\n    seo_path:   'E:\\\\RainTube\\\\config\\\\seo-ep10-lluvia-borneo.json',\n    keyword:    'tropical rain jungle sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  11: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0df003b8d30012f3140d/media.mp3',\n    audio_path: 'E:/RainTube/ep11_cenotes_mexico.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Agua-Cenotes-Mexico-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep11-cenotes-mexico.json',\n    keyword:    'water sounds cenotes mexico sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  12: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db1bcbb30e9c001115de3c/media.mp3',\n    audio_path: 'E:/RainTube/ep12_lluvia_kioto.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Templos-Kioto-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep12-lluvia-kioto.json',\n    keyword:    'rain at kyoto temples sleep 8 hours',\n    privacy:    'unlisted'\n  },\n  13: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62df07f4d9c26f00125c72d5/media.mp3',\n    audio_path: 'E:/RainTube/ep13_cascadas_islandia.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Cascadas-Islandia-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep13-cascadas-islandia.json',\n    keyword:    'iceland waterfalls water sounds 8 hours',\n    privacy:    'unlisted'\n  },\n  14: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62daeb6852412d001304c31f/media.mp3',\n    audio_path: 'E:/RainTube/ep14_lluvia_machu_picchu.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Machu-Picchu-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep14-lluvia-machu-picchu.json',\n    keyword:    'rain at machu picchu 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  15: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db2fce03b8d30012f3acab/media.mp3',\n    audio_path: 'E:/RainTube/ep15_cataratas_iguazu.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Cataratas-Iguazu-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep15-cataratas-iguazu.json',\n    keyword:    'iguazu falls water sounds 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  16: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db25aa2950990012253eea/media.mp3',\n    audio_path: 'E:/RainTube/ep16_fiordos_noruega.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Fiordos-Noruega-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep16-fiordos-noruega.json',\n    keyword:    'norway fjords water sounds 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  17: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db2b3d46b3b60012a17745/media.mp3',\n    audio_path: 'E:/RainTube/ep17_lluvia_maldivas.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Maldivas-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep17-lluvia-maldivas.json',\n    keyword:    'maldives rain tropical 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  18: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0b4700f3e30012e345be/media.mp3',\n    audio_path: 'E:/RainTube/ep18_lluvia_vietnam.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Vietnam-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep18-lluvia-vietnam.json',\n    keyword:    'monsoon rain vietnam 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  19: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0bea46b3b60012a0ebb6/media.mp3',\n    audio_path: 'E:/RainTube/ep19_lluvia_angkor.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Angkor-Wat-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep19-lluvia-angkor.json',\n    keyword:    'rain at angkor wat temples 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  20: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db14792b96360012fd3cee/media.mp3',\n    audio_path: 'E:/RainTube/ep20_cataratas_victoria.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Cataratas-Victoria-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep20-cataratas-victoria.json',\n    keyword:    'victoria falls water sounds 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  21: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62dae8e237e8de0013c7b301/media.mp3',\n    audio_path: 'E:/RainTube/ep21_lluvia_patagonia.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Patagonia-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep21-lluvia-patagonia.json',\n    keyword:    'patagonia rain storm 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  22: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db2a67cea9930012799b19/media.mp3',\n    audio_path: 'E:/RainTube/ep22_acantilados_moher.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Acantilados-Moher-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep22-acantilados-moher.json',\n    keyword:    'cliffs of moher ocean sounds 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  23: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db2a0d46b3b60012a17223/media.mp3',\n    audio_path: 'E:/RainTube/ep23_lluvia_petra.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Petra-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep23-lluvia-petra.json',\n    keyword:    'rain at petra ancient city 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  24: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0b97dde0e80012f6582a/media.mp3',\n    audio_path: 'E:/RainTube/ep24_lluvia_escocia.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Highlands-Escocia-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep24-lluvia-escocia.json',\n    keyword:    'scottish highlands rain thunder 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  25: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db0ff4cea9930012792705/media.mp3',\n    audio_path: 'E:/RainTube/ep25_lluvia_baikal.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Baikal-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep25-lluvia-baikal.json',\n    keyword:    'baikal lake rain 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  26: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62daf0e5519edb00147af116/media.mp3',\n    audio_path: 'E:/RainTube/ep26_lluvia_amazonas.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Lluvia-Amazonas-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep26-lluvia-amazonas.json',\n    keyword:    'amazon river rain rainforest 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  27: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db2ee1c2e3e8001424c563/media.mp3',\n    audio_path: 'E:/RainTube/ep27_rain_halong_bay.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Rain-Halong-Bay-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep27-rain-halong-bay.json',\n    keyword:    'halong bay rain 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  28: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62daec672b96360012fc7a24/media.mp3',\n    audio_path: 'E:/RainTube/ep28_rain_redwood.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Rain-Redwood-Forest-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep28-rain-redwood.json',\n    keyword:    'redwood forest rain california 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  29: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db227729509900122530b5/media.mp3',\n    audio_path: 'E:/RainTube/ep29_rain_tokyo.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Rain-Tokyo-Street-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep29-rain-tokyo.json',\n    keyword:    'tokyo city rain night 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  30: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db24f200f3e30012e3b972/media.mp3',\n    audio_path: 'E:/RainTube/ep30_rain_cabin_porch.mp3',\n    video_path: 'E:/RainTube/output/RainTube-Rain-Cabin-Porch-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep30-rain-cabin-porch.json',\n    keyword:    'cozy cabin porch rain thunder 8 hours sleep',\n    privacy:    'unlisted'\n  },\n  34: {\n    audio_url:  'https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/62db287000f3e30012e3c83f/media.mp3',\n    audio_path: 'E:/RainTube/ep34_playa-de-copacabana.mp3',\n    video_path: 'E:/RainTube/output/RainTube-ep34-playa-de-copacabana-8h.mp4',\n    seo_path:   'E:/RainTube/config/seo-ep34-playa-de-copacabana.json',\n    keyword:    'olas del mar',\n    privacy:    'unlisted'\n  }\n};\n\nconst ep = episodios[EPISODIO];\nif (!ep) throw new Error('Episodio ' + EPISODIO + ' no definido');\nif (!fs.existsSync(ep.seo_path)) throw new Error('SEO no encontrado: ' + ep.seo_path);\n\nconst seo = JSON.parse(fs.readFileSync(ep.seo_path, 'utf8'));\nconst descripcion = seo.es.description + '\\n\\n---\\n\\n' + seo.en.description;\n\nconsole.log('EP' + EPISODIO + ': ' + seo.es.title);\nconsole.log('Privacy:', ep.privacy);\n\nreturn [{ json: {\n  episodio: EPISODIO,\n  audio_url:  ep.audio_url,\n  audio_path: ep.audio_path,\n  video_path: ep.video_path,\n  seo_path:   ep.seo_path,\n  titulo:     seo.es.title,\n  descripcion,\n  keyword:    ep.keyword,\n  privacy:    ep.privacy\n} }];"
+      },
+      "id": "ccce11a3-104f-4e81-9079-e7b1705952c2",
+      "name": "Seleccionar Episodio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2224,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const https = require('https');\nconst http  = require('http');\nconst fs    = require('fs');\nconst datos = $input.first().json;\n\n// Si el audio ya existe en disco, saltamos la descarga\nif (fs.existsSync(datos.audio_path)) {\n  console.log(`Audio ya existe: ${datos.audio_path}`);\n  return [{ json: datos }];\n}\n\nconsole.log(`Descargando EP${datos.episodio} desde acast...`);\n\nfunction descargar(url, destino, intentos) {\n  return new Promise((resolve, reject) => {\n    const proto = url.startsWith('https') ? https : http;\n    proto.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {\n      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {\n        // Seguir redireccion\n        descargar(res.headers.location, destino, intentos).then(resolve).catch(reject);\n        return;\n      }\n      if (res.statusCode !== 200) {\n        reject(new Error(`HTTP ${res.statusCode} descargando audio`)); return;\n      }\n      const total = parseInt(res.headers['content-length'] || '0');\n      let descargado = 0;\n      const archivo = fs.createWriteStream(destino);\n      res.on('data', chunk => {\n        descargado += chunk.length;\n        if (total > 0 && descargado % (1024*1024*50) < chunk.length) {\n          console.log(`  ${Math.round(descargado/1024/1024)}MB / ${Math.round(total/1024/1024)}MB`);\n        }\n      });\n      res.pipe(archivo);\n      archivo.on('finish', () => { archivo.close(); resolve(); });\n      archivo.on('error', (e) => { fs.unlink(destino, ()=>{}); reject(e); });\n    }).on('error', (e) => { fs.unlink(destino, ()=>{}); reject(e); });\n  });\n}\n\nawait descargar(datos.audio_url, datos.audio_path, 0);\nconsole.log(`âœ… Audio descargado: ${datos.audio_path}`);\n\nreturn [{ json: datos }];"
+      },
+      "id": "31ed02b9-d4ab-4601-979e-fa551baeee7c",
+      "name": "Descargar Audio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { spawn } = require('child_process');\nconst fs = require('fs');\nconst datos = $input.first().json;\n\n// Si el video ya existe, saltamos el render\nif (fs.existsSync(datos.video_path)) {\n  console.log(`Video ya existe: ${datos.video_path}`);\n  return [{ json: datos }];\n}\n\nconsole.log(`Creando video con FFmpeg para EP${datos.episodio}...`);\nconsole.log(`Audio: ${datos.audio_path}`);\nconsole.log(`Salida: ${datos.video_path}`);\n\nconst resultado = await new Promise((resolve, reject) => {\n  const FFMPEG = 'C:\\\\Users\\\\Jowy\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Packages\\\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\\\ffmpeg-8.0.1-full_build\\\\bin\\\\ffmpeg.exe';\n  const proc = spawn(FFMPEG, [\n    '-y',\n    '-ss', '86',\n    '-i', datos.audio_path,\n    '-f', 'lavfi', '-i', 'color=c=black:size=1920x1080:rate=24',\n    '-map', '1:v',\n    '-map', '0:a',\n    '-c:v', 'libx264',\n    '-preset', 'ultrafast',\n    '-crf', '28',\n    '-c:a', 'aac',\n    '-b:a', '128k',\n    '-t', '28800',\n    datos.video_path\n  ]);\n\n  let stderr = '';\n  proc.stderr.on('data', d => {\n    const linea = d.toString();\n    stderr += linea;\n    // Mostrar progreso cada vez que FFmpeg reporta tiempo\n    if (linea.includes('time=')) {\n      const match = linea.match(/time=(\\S+)/);\n      if (match) console.log(`\\rFFmpeg: ${match[1]}`);\n    }\n  });\n\n  proc.on('close', (code) => {\n    if (code === 0) resolve({ ok: true });\n    else reject(new Error(`FFmpeg fallÃ³ (cÃ³digo ${code}): ${stderr.slice(-300)}`));\n  });\n});\n\nconst sizeMB = Math.round(fs.statSync(datos.video_path).size / 1024 / 1024);\nconsole.log(`\\nâœ… Video creado: ${datos.video_path} (${sizeMB} MB)`);\n\nreturn [{ json: datos }];"
+      },
+      "id": "4a99175b-ca2d-4e18-8ed9-d8e819cc5321",
+      "name": "FFmpeg - Crear Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Upload-Content-Type",
+              "value": "video/mp4"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ snippet: { title: $json.titulo, description: $json.descripcion, categoryId: '22', defaultLanguage: 'es', defaultAudioLanguage: 'es' }, status: { privacyStatus: $json.privacy || 'unlisted', selfDeclaredMadeForKids: false, license: 'creativeCommon' } }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "17d84564-4bf4-4ce1-baa5-b26908c9f881",
+      "name": "YouTube - Iniciar Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3200,
+        944
+      ],
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "7pPcu6xc0jmPO7pQ",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs    = require('fs');\nconst https = require('https');\n\nconst datos   = $('Descargar Audio').first().json;\nconst response = $input.first().json;\nconst uploadUrl = response.headers?.location || response.headers?.Location;\n\nif (!uploadUrl) throw new Error('YouTube no devolvio URL de upload.');\n\nconst videoPath = datos.video_path;\nconst fileSize  = fs.statSync(videoPath).size;\nconsole.log(`Subiendo: ${videoPath} (${(fileSize/1024/1024).toFixed(0)} MB)`);\n\nconst result = await new Promise((resolve, reject) => {\n  const fileStream = fs.createReadStream(videoPath);\n  const req = https.request(uploadUrl, {\n    method: 'PUT',\n    headers: { 'Content-Length': fileSize, 'Content-Type': 'video/mp4' }\n  }, (res) => {\n    let body = '';\n    res.on('data', chunk => body += chunk);\n    res.on('end', () => {\n      console.log(`YouTube respondio: HTTP ${res.statusCode}`);\n      console.log(`Headers: ${JSON.stringify(res.headers)}`);\n      console.log(`Body (${body.length} bytes): ${body.slice(0, 500)}`);\n      if (res.statusCode >= 200 && res.statusCode < 300) {\n        try { resolve(JSON.parse(body)); }\n        catch(e) { reject(new Error(`HTTP ${res.statusCode} pero body no es JSON: ${body.slice(0,200)}`)); }\n      } else if (res.statusCode === 308) {\n        reject(new Error(`Upload incompleto (308). Probablemente la URL expiro o se interrumpio. Reintenta desde Iniciar Upload.`));\n      } else {\n        reject(new Error(`HTTP ${res.statusCode}: ${body.slice(0,300)}`));\n      }\n    });\n  });\n  req.on('error', (e) => reject(new Error(`Error de red: ${e.message}`)));\n  fileStream.on('error', (e) => reject(new Error(`Error leyendo archivo: ${e.message}`)));\n  fileStream.pipe(req);\n});\n\nif (!result.id) throw new Error('YouTube no devolvio video ID: ' + JSON.stringify(result));\n\nreturn [{ json: {\n  video_id: result.id,\n  url:      `https://www.youtube.com/watch?v=${result.id}`,\n  titulo:   result.snippet?.title || datos.titulo,\n  status:   result.status?.uploadStatus,\n  episodio: datos.episodio\n} }];"
+      },
+      "id": "f9f91a34-9e3c-4ea1-8f4c-e35a94a0c062",
+      "name": "YouTube - Subir Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs     = require('fs');\nconst upload = $('YouTube - Subir Video').first().json;\n\nconst log = {\n  fecha:    new Date().toISOString(),\n  episodio: upload.episodio,\n  video_id: upload.video_id,\n  url:      upload.url,\n  titulo:   upload.titulo,\n  status:   upload.status\n};\n\nconst logPath = 'E:/RainTube/logs/videos_publicados.json';\nlet logs = [];\ntry { logs = JSON.parse(fs.readFileSync(logPath, 'utf8')); } catch(e) {}\nlogs.push(log);\nfs.writeFileSync(logPath, JSON.stringify(logs, null, 2));\n\nreturn [{ json: {\n  mensaje:  'Episodio ' + upload.episodio + ' publicado en YouTube',\n  url:      upload.url,\n  titulo:   upload.titulo,\n  video_id: upload.video_id\n} }];"
+      },
+      "id": "4743bb97-8e98-417e-a9b4-523bf2464043",
+      "name": "Guardar Log + Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4144,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 18 * * 1"
+            }
+          ]
+        }
+      },
+      "name": "Cada Lunes 18h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        1140
+      ],
+      "id": "71a0e311-6f58-4856-b9d5-22c75b48d6ed"
+    },
+    {
+      "parameters": {
+        "jsCode": "// NODO: \"Auto-Generar Episodio\"\n// Elige un audio no usado del catalogo + genera SEO con IA (OpenRouter).\n// Produce los mismos campos que \"Seleccionar Episodio\" para alimentar el pipeline.\nconst fs = require('fs');\nconst https = require('https');\n\nconst CATALOG = 'E:/RainTube/config/audio-catalog.json';\nconst PLACES  = 'E:/RainTube/config/used-places.json';\nconst LOG     = 'E:/RainTube/logs/videos_publicados.json';\n\n// 1. Elegir el siguiente audio no usado\nconst catalog = JSON.parse(fs.readFileSync(CATALOG, 'utf8'));\nconst audio = catalog.find(a => !a.used);\nif (!audio) throw new Error('No quedan audios sin usar en el catalogo.');\n\n// 2. Lugares ya usados (para no repetir)\nlet usedPlaces = [];\ntry { usedPlaces = JSON.parse(fs.readFileSync(PLACES, 'utf8')); } catch (e) { usedPlaces = []; }\n\n// 3. Numero de episodio = max del log + 1\nlet episodio = 31;\ntry {\n  const logs = JSON.parse(fs.readFileSync(LOG, 'utf8'));\n  const maxEp = Math.max(0, ...logs.map(l => l.episodio || 0));\n  episodio = maxEp + 1;\n} catch (e) {}\n\n// 4. Prompt para el LLM segun el tipo de sonido\nconst typeLabel = {\n  rain: 'lluvia', water: 'agua / arroyo', ocean: 'olas del mar',\n  storm: 'lluvia y truenos', waterfall: 'cascada'\n}[audio.sound_type] || 'lluvia';\n\nconst prompt = `Eres un experto en SEO de YouTube para un canal de videos ambientales relajantes de 8 horas con pantalla negra.\nGenera el SEO para un nuevo video cuyo audio es: ${typeLabel}.\nREGLAS DEL TITULO (estrictas):\n- En ESPAÑOL.\n- Formato: \"<Lluvia|Sonido de Agua|Olas del Mar|Lluvia y Tormenta|Sonido de Cascadas> <preposicion natural: en/sobre/de/del/de las> <LUGAR EXOTICO REAL> 8 Horas <un emoji> Dormir, Estudiar y Relajarse\". Elige TU la preposicion que suene natural; NUNCA escribas \"en/sobre\" literal.\n- El lugar debe ser REAL, evocador y exotico (montañas, selvas, islas, templos, lagos, ciudades, costas...).\n- SOLO temas de lluvia o agua. NUNCA ventilador, ruido blanco, bebe, perro.\n- NO reutilices ninguno de estos lugares ya usados: ${JSON.stringify(usedPlaces)}\nDevuelve SOLO un objeto JSON compacto, sin markdown, con las claves:\n{\"place\":\"...\",\"emoji\":\"...\",\"title\":\"...\",\"description\":\"<3-4 parrafos cortos en ESPAÑOL: 8 horas de sonido, perfecto para dormir/estudiar/relajarse, llamada a suscribirse, y varios hashtags>\",\"tags\":\"12 etiquetas en español separadas por comas\"}`;\n\n// 5. Llamar OpenRouter\nconst apiKey = $env.OPENROUTER_API_KEY;\nif (!apiKey) throw new Error('Falta OPENROUTER_API_KEY en el entorno.');\n\nconst body = JSON.stringify({\n  model: 'openai/gpt-4o-mini',\n  messages: [{ role: 'user', content: prompt }],\n  temperature: 0.9,\n  max_tokens: 900\n});\n\nconst llmRaw = await new Promise((resolve, reject) => {\n  const req = https.request('https://openrouter.ai/api/v1/chat/completions', {\n    method: 'POST',\n    headers: {\n      'Authorization': 'Bearer ' + apiKey,\n      'Content-Type': 'application/json',\n      'Content-Length': Buffer.byteLength(body)\n    }\n  }, (res) => {\n    let d = '';\n    res.on('data', c => d += c);\n    res.on('end', () => {\n      if (res.statusCode !== 200) { reject(new Error('OpenRouter HTTP ' + res.statusCode + ': ' + d.slice(0, 200))); return; }\n      try { resolve(JSON.parse(d).choices[0].message.content); }\n      catch (e) { reject(new Error('Respuesta LLM invalida: ' + d.slice(0, 200))); }\n    });\n  });\n  req.on('error', reject);\n  req.write(body);\n  req.end();\n});\n\n// 6. Parsear el JSON del LLM (quitar posibles ```json fences)\nlet seo;\ntry {\n  const clean = llmRaw.replace(/```json/gi, '').replace(/```/g, '').trim();\n  seo = JSON.parse(clean);\n} catch (e) {\n  throw new Error('No se pudo parsear el SEO del LLM: ' + llmRaw.slice(0, 200));\n}\nif (!seo.title || !seo.place) throw new Error('SEO incompleto del LLM: ' + JSON.stringify(seo).slice(0, 150));\n\n// 7. Construir paths (slug del lugar)\nconst slug = seo.place.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');\nconst audio_path = `E:/RainTube/ep${episodio}_${slug}.mp3`;\nconst video_path = `E:/RainTube/output/RainTube-ep${episodio}-${slug}-8h.mp4`;\nconst audio_url  = `https://sphinx.acast.com/p/open/s/62d96ab962e8610013dee16e/e/${audio.acast_id}/media.mp3`;\n\n// 8. Guardar estado: marcar audio usado + registrar lugar + guardar SEO\naudio.used = true;\nfs.writeFileSync(CATALOG, JSON.stringify(catalog, null, 2));\nusedPlaces.push(seo.place);\nfs.writeFileSync(PLACES, JSON.stringify(usedPlaces, null, 2));\nconst seoPath = `E:/RainTube/config/seo-ep${episodio}-${slug}.json`;\nfs.writeFileSync(seoPath, JSON.stringify({ episode: episodio, place: seo.place, title: seo.title, description: seo.description, tags: seo.tags, sound_type: audio.sound_type, acast_id: audio.acast_id }, null, 2));\n\nconsole.log(`Auto-generado EP${episodio}: ${seo.title}`);\n\n// 9. Devolver en el formato que espera el pipeline\nreturn [{ json: {\n  episodio,\n  audio_url,\n  audio_path,\n  video_path,\n  seo_path: seoPath,\n  titulo: seo.title,\n  descripcion: seo.description,\n  keyword: (seo.tags || '').split(',')[0].trim(),\n  privacy: 'unlisted'\n} }];\n"
+      },
+      "name": "Auto-Generar Episodio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2224,
+        1140
+      ],
+      "id": "a535d80c-2184-4390-b9c4-9c19df458d7f"
+    }
+  ],
+  "connections": {
+    "Webhook RainTube": {
+      "main": [
+        [
+          {
+            "node": "Seleccionar Episodio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seleccionar Episodio": {
+      "main": [
+        [
+          {
+            "node": "Descargar Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descargar Audio": {
+      "main": [
+        [
+          {
+            "node": "FFmpeg - Crear Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FFmpeg - Crear Video": {
+      "main": [
+        [
+          {
+            "node": "YouTube - Iniciar Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube - Iniciar Upload": {
+      "main": [
+        [
+          {
+            "node": "YouTube - Subir Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube - Subir Video": {
+      "main": [
+        [
+          {
+            "node": "Guardar Log + Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cada Lunes 18h": {
+      "main": [
+        [
+          {
+            "node": "Auto-Generar Episodio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Generar Episodio": {
+      "main": [
+        [
+          {
+            "node": "Descargar Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
