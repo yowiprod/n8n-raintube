@@ -41,3 +41,8 @@ desktop.ini
 node_modules/
 __pycache__/
 *.pyc
+
+# === Sesion auto-generacion ===
+config/_used_ids.json
+config/_setup_repo.py
+config/_dryrun_autogen.js
